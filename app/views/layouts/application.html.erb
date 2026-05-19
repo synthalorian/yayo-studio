@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html data-theme="<%= current_theme&.name || 'synthwave-84' %>">
+  <head>
+    <title>Yayo Studio :: Creative Project Hub</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="<%= current_theme&.colors&.dig('background') || '#0a0a1a' %>">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-[var(--color-bg)] text-[var(--color-text)] antialiased min-h-screen flex flex-col">
+    <% if logged_in? %>
+      <nav class="border-b border-[var(--color-border)] bg-[var(--color-surface)]/80 backdrop-blur-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between h-16">
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+              <%= link_to dashboard_path, class: "flex items-center gap-2 group" do %>
+                <span class="text-2xl">🎹</span>
+                <span class="text-xl font-bold bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] bg-clip-text text-transparent">
+                  Yayo Studio
+                </span>
+              <% end %>
+
+              <div class="hidden md:flex ml-8 items-center gap-1">
+                <%= nav_link "Dashboard", dashboard_path, class: "nav-item" %>
+                <%= nav_link "Projects", projects_path, class: "nav-item" %>
+                <%= nav_link "Journal", all_entries_path, class: "nav-item" %>
+              </div>
+            </div>
+
+            <!-- Right side -->
+            <div class="flex items-center gap-4">
+              <div class="hidden md:flex items-center gap-2 text-sm text-[var(--color-text-muted)]">
+                <span><%= current_user.projects.active.count %> active</span>
+                <span class="w-1 h-1 rounded-full bg-[var(--color-text-muted)]"></span>
+                <span><%= current_user.name %></span>
+              </div>
+
+              <!-- Theme quick switcher -->
+              <div class="relative" data-controller="dropdown">
+                <button data-action="click->dropdown#toggle" class="p-2 rounded-lg hover:bg-[var(--color-surface-alt)] transition-colors">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                  </svg>
+                </button>
+                <div data-dropdown-target="menu" class="hidden absolute right-0 mt-2 w-56 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] shadow-2xl py-2 z-50">
+                  <div class="px-3 py-2 text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">Themes</div>
+                  <% Theme.all.each do |theme| %>
+                    <%= button_to update_theme_path(theme_id: theme.id), method: :patch,
+                          class: "w-full text-left px-3 py-2 text-sm hover:bg-[var(--color-surface-alt)] transition-colors flex items-center gap-3 #{'text-[var(--color-primary)]' if current_user.theme_name == theme.name}" do %>
+                      <span class="w-4 h-4 rounded-full border border-[var(--color-border)]" style="background: <%= theme.colors['primary'] %>"></span>
+                      <span><%= theme.name %></span>
+                      <% if current_user.theme_name == theme.name %>
+                        <span class="ml-auto">✓</span>
+                      <% end %>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+
+              <!-- Settings -->
+              <%= link_to settings_path, class: "p-2 rounded-lg hover:bg-[var(--color-surface-alt)] transition-colors" do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              <% end %>
+
+              <!-- Logout -->
+              <%= button_to logout_path, method: :delete, class: "p-2 rounded-lg hover:bg-[var(--color-surface-alt)] transition-colors" do %>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile nav -->
+        <div class="md:hidden border-t border-[var(--color-border)]">
+          <div class="flex justify-around py-2 px-4">
+            <%= nav_link "Dashboard", dashboard_path, class: "mobile-nav-item" %>
+            <%= nav_link "Projects", projects_path, class: "mobile-nav-item" %>
+            <%= nav_link "Journal", all_entries_path, class: "mobile-nav-item" %>
+          </div>
+        </div>
+      </nav>
+    <% end %>
+
+    <!-- Flash messages -->
+    <% if flash.any? %>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <% flash.each do |type, message| %>
+          <div class="px-4 py-3 rounded-xl border text-sm mb-2 animate-fade-in
+                <%= type == 'notice' ? 'border-[var(--color-success)]/30 bg-[var(--color-success)]/10 text-[var(--color-success)]' : 'border-[var(--color-error)]/30 bg-[var(--color-error)]/10 text-[var(--color-error)]' %>">
+            <div class="flex items-center gap-2">
+              <% if type == 'notice' %>
+                <span>✦</span>
+              <% else %>
+                <span>⚠</span>
+              <% end %>
+              <%= message %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Main content -->
+    <main class="flex-1">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <%= yield %>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-[var(--color-border)] py-4 text-center text-xs text-[var(--color-text-muted)]">
+      <p>Yayo Studio :: The Grid Awaits :: 🎹🦞</p>
+    </footer>
+  </body>
+</html>

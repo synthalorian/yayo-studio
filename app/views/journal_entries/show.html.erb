@@ -1,0 +1,35 @@
+<div class="mb-6">
+  <%= link_to [@project, :journal_entries], class: "text-sm text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors inline-flex items-center gap-1 mb-4" do %>
+    ← Back to Journal
+  <% end %>
+
+  <div class="max-w-3xl">
+    <h1 class="text-2xl font-bold"><%= @entry.title %></h1>
+    <div class="flex items-center gap-3 mt-2 text-sm text-[var(--color-text-muted)]">
+      <span>📅 <%= format_date(@entry.entry_date) %></span>
+      <span>🕐 <%= time_ago(@entry.created_at) %></span>
+      <% if @entry.tags.any? %>
+        <span class="w-1 h-1 rounded-full bg-[var(--color-text-muted)]"></span>
+        <% @entry.tags.each do |tag| %>
+          <span class="px-2 py-0.5 rounded-full text-xs bg-[var(--color-surface-alt)] text-[var(--color-text-muted)]"><%= tag.name %></span>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="mt-6 p-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+      <%= @entry.content %>
+    </div>
+
+    <div class="flex items-center gap-2 mt-4">
+      <%= link_to edit_project_journal_entry_path(@project, @entry),
+            class: "px-4 py-2 rounded-lg text-sm border border-[var(--color-border)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all" do %>
+        ✏️ Edit
+      <% end %>
+      <%= button_to [@project, @entry], method: :delete,
+            class: "px-4 py-2 rounded-lg text-sm border border-[var(--color-border)] hover:border-[var(--color-error)] hover:text-[var(--color-error)] transition-all",
+            data: { turbo_confirm: "Delete this entry forever?" } do %>
+        🗑 Delete
+      <% end %>
+    </div>
+  </div>
+</div>

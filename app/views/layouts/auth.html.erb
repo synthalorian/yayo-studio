@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html data-theme="synthwave-84">
+  <head>
+    <title>Yayo Studio :: Sign In</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#0a0a1a">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-[#0a0a1a] text-[#e0d0f0] antialiased min-h-screen flex flex-col">
+    <main class="flex-1 flex items-center justify-center">
+      <%= yield %>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,144 @@
+<div class="mb-8">
+  <!-- Back link -->
+  <%= link_to projects_path, class: "text-sm text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors inline-flex items-center gap-1 mb-4" do %>
+    ← Back to Projects
+  <% end %>
+
+  <div class="flex items-start justify-between">
+    <div class="flex items-start gap-4">
+      <span class="text-4xl"><%= project_type_icon(@project.project_type) %></span>
+      <div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-3xl font-bold"><%= @project.name %></h1>
+          <%= status_badge(@project.status) %>
+        </div>
+        <p class="text-[var(--color-text-muted)] mt-1"><%= @project.project_type&.name || "Uncategorized" %></p>
+        <% if @project.description.present? %>
+          <p class="mt-2 text-sm"><%= @project.description %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <%= link_to edit_project_path(@project),
+            class: "px-3 py-1.5 rounded-lg text-sm border border-[var(--color-border)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all" do %>
+        ✏️ Edit
+      <% end %>
+      <%= button_to @project, method: :delete,
+            class: "px-3 py-1.5 rounded-lg text-sm border border-[var(--color-border)] hover:border-[var(--color-error)] hover:text-[var(--color-error)] transition-all",
+            data: { turbo_confirm: "Delete #{@project.name} forever?" } do %>
+        🗑 Delete
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Project metadata -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <!-- Journal entries -->
+  <div class="md:col-span-2 space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xl font-semibold flex items-center gap-2">
+        <span>📝</span> Journal
+      </h2>
+      <%= link_to new_project_journal_entry_path(@project),
+            class: "px-3 py-1.5 rounded-lg text-sm font-medium bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-[var(--color-bg)] hover:opacity-90 transition-all" do %>
+        + New Entry
+      <% end %>
+    </div>
+
+    <div class="space-y-3">
+      <% @journal_entries.each do |entry| %>
+        <%= link_to [@project, entry], class: "block p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary)]/50 transition-all group" do %>
+          <div class="flex items-center justify-between">
+            <h3 class="font-medium group-hover:text-[var(--color-primary)] transition-colors"><%= entry.title %></h3>
+            <span class="text-xs text-[var(--color-text-muted)]"><%= format_date(entry.entry_date) %></span>
+          </div>
+          <div class="flex items-center gap-2 mt-1 text-xs text-[var(--color-text-muted)]">
+            <span><%= time_ago(entry.created_at) %></span>
+            <% if entry.tags.any? %>
+              <span class="w-1 h-1 rounded-full bg-[var(--color-text-muted)]"></span>
+              <% entry.tags.each do |tag| %>
+                <span class="px-2 py-0.5 rounded-full bg-[var(--color-surface-alt)] text-[var(--color-text-muted)]"><%= tag.name %></span>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+
+      <% if @journal_entries.empty? %>
+        <p class="text-center py-8 text-sm text-[var(--color-text-muted)] border border-dashed border-[var(--color-border)] rounded-xl">
+          No entries yet. Start documenting your process!
+        </p>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="space-y-6">
+    <!-- Assets -->
+    <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold flex items-center gap-2">
+          <span>📦</span> Assets
+        </h3>
+        <%= link_to new_project_asset_path(@project),
+              class: "text-xs text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors" do %>
+          + Add
+        <% end %>
+      </div>
+      <div class="space-y-2">
+        <% @assets.each do |asset| %>
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-[var(--color-text-muted)]"><%= asset.name %></span>
+            <span class="text-xs text-[var(--color-text-muted)]"><%= asset.asset_type %></span>
+          </div>
+        <% end %>
+        <% if @assets.empty? %>
+          <p class="text-xs text-[var(--color-text-muted)] text-center py-2">No assets yet</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- AI Integrations -->
+    <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-semibold flex items-center gap-2">
+          <span>🤖</span> AI Harness
+        </h3>
+        <%= link_to new_project_ai_integration_path(@project),
+              class: "text-xs text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors" do %>
+          + Connect
+        <% end %>
+      </div>
+      <div class="space-y-2">
+        <% @ai_integrations.each do |ai| %>
+          <div class="flex items-center justify-between text-sm">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-[var(--color-success)]"></span>
+              <span><%= ai.name %></span>
+            </div>
+            <span class="text-xs text-[var(--color-text-muted)]"><%= ai.provider %></span>
+          </div>
+        <% end %>
+        <% if @ai_integrations.empty? %>
+          <p class="text-xs text-[var(--color-text-muted)] text-center py-2">No AI connections yet</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Quick info -->
+    <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+      <h3 class="font-semibold mb-3 flex items-center gap-2">
+        <span>ℹ️</span> Details
+      </h3>
+      <div class="space-y-2 text-sm text-[var(--color-text-muted)]">
+        <p>Created: <%= format_date(@project.created_at) %></p>
+        <p>Updated: <%= time_ago(@project.updated_at) %></p>
+        <% if @project.repo_url.present? %>
+          <p>Repo: <%= link_to "Open →", @project.repo_url, target: :_blank, class: "text-[var(--color-primary)] hover:text-[var(--color-secondary)]" %></p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

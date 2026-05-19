@@ -1,0 +1,320 @@
+/* Yayo Studio — Theme Engine v1.0 */
+/* CSS Custom Properties for dynamic theming */
+
+:root {
+  /* Synthwave '84 — default palette */
+  --color-bg: #0a0a1a;
+  --color-surface: #1a0a2e;
+  --color-surface-alt: #2d1b4e;
+  --color-primary: #b388ff;
+  --color-secondary: #00e5ff;
+  --color-accent: #ff6ec7;
+  --color-text: #e0d0f0;
+  --color-text-muted: #7a5f9a;
+  --color-border: #3d2a5e;
+  --color-success: #00e676;
+  --color-warning: #ffab00;
+  --color-error: #ff5252;
+  --gradient-start: #b388ff;
+  --gradient-end: #00e5ff;
+}
+
+/* Synthwave '84 */
+[data-theme="synthwave-84"] {
+  --color-bg: #0a0a1a;
+  --color-surface: #1a0a2e;
+  --color-surface-alt: #2d1b4e;
+  --color-primary: #b388ff;
+  --color-secondary: #00e5ff;
+  --color-accent: #ff6ec7;
+  --color-text: #e0d0f0;
+  --color-text-muted: #7a5f9a;
+  --color-border: #3d2a5e;
+  --color-success: #00e676;
+  --color-warning: #ffab00;
+  --color-error: #ff5252;
+  --gradient-start: #b388ff;
+  --gradient-end: #00e5ff;
+}
+
+/* Dark */
+[data-theme="dark"] {
+  --color-bg: #0f0f0f;
+  --color-surface: #1a1a2e;
+  --color-surface-alt: #25253e;
+  --color-primary: #6366f1;
+  --color-secondary: #22d3ee;
+  --color-accent: #f472b6;
+  --color-text: #e2e8f0;
+  --color-text-muted: #64748b;
+  --color-border: #334155;
+  --color-success: #22c55e;
+  --color-warning: #eab308;
+  --color-error: #ef4444;
+  --gradient-start: #6366f1;
+  --gradient-end: #22d3ee;
+}
+
+/* Light */
+[data-theme="light"] {
+  --color-bg: #ffffff;
+  --color-surface: #f8fafc;
+  --color-surface-alt: #f1f5f9;
+  --color-primary: #6366f1;
+  --color-secondary: #0891b2;
+  --color-accent: #db2777;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-success: #16a34a;
+  --color-warning: #ca8a04;
+  --color-error: #dc2626;
+  --gradient-start: #6366f1;
+  --gradient-end: #0891b2;
+}
+
+/* Neon Nights */
+[data-theme="neon-nights"] {
+  --color-bg: #0d0221;
+  --color-surface: #150535;
+  --color-surface-alt: #1f0a47;
+  --color-primary: #ff2d95;
+  --color-secondary: #00f0ff;
+  --color-accent: #ffcc00;
+  --color-text: #f0e6ff;
+  --color-text-muted: #8a6bb5;
+  --color-border: #2a1058;
+  --color-success: #00ff87;
+  --color-warning: #ffd700;
+  --color-error: #ff3355;
+  --gradient-start: #ff2d95;
+  --gradient-end: #00f0ff;
+}
+
+/* Sunset Drive */
+[data-theme="sunset-drive"] {
+  --color-bg: #1a0a1e;
+  --color-surface: #2a1020;
+  --color-surface-alt: #3a1828;
+  --color-primary: #ff6b35;
+  --color-secondary: #ffd700;
+  --color-accent: #ff1493;
+  --color-text: #ffe4d6;
+  --color-text-muted: #b08070;
+  --color-border: #4a2030;
+  --color-success: #00e676;
+  --color-warning: #ffab00;
+  --color-error: #ff1744;
+  --gradient-start: #ff6b35;
+  --gradient-end: #ffd700;
+}
+
+/* Ocean Deep */
+[data-theme="ocean-deep"] {
+  --color-bg: #0a1628;
+  --color-surface: #0f2040;
+  --color-surface-alt: #152a52;
+  --color-primary: #4fc3f7;
+  --color-secondary: #81c784;
+  --color-accent: #ffb74d;
+  --color-text: #e0f0ff;
+  --color-text-muted: #6080a0;
+  --color-border: #1a3060;
+  --color-success: #66bb6a;
+  --color-warning: #ffa726;
+  --color-error: #e53935;
+  --gradient-start: #4fc3f7;
+  --gradient-end: #81c784;
+}
+
+/* ===== Global Styles ===== */
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Selection */
+::selection {
+  background: var(--color-primary);
+  color: var(--color-bg);
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ===== Component Styles ===== */
+
+/* Nav items */
+.nav-item {
+  @apply px-3 py-2 rounded-lg text-sm font-medium transition-all;
+  color: var(--color-text-muted);
+}
+
+.nav-item:hover {
+  color: var(--color-primary);
+  background: var(--color-surface-alt);
+}
+
+.nav-item.active {
+  color: var(--color-primary);
+  background: var(--color-surface-alt);
+}
+
+/* Mobile nav items */
+.mobile-nav-item {
+  @apply px-3 py-2 rounded-lg text-xs font-medium transition-all;
+  color: var(--color-text-muted);
+}
+
+.mobile-nav-item:hover,
+.mobile-nav-item.active {
+  color: var(--color-primary);
+}
+
+/* Card hover glow */
+.card-glow:hover {
+  box-shadow: 0 0 20px var(--color-primary-alpha, rgba(179, 136, 255, 0.1));
+}
+
+/* Gradient text utility */
+.gradient-text {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+}
+
+/* Grid background pattern */
+.bg-grid {
+  background-image:
+    linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* Pulse glow for active elements */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 4px var(--color-primary-alpha, rgba(179, 136, 255, 0.2)); }
+  50% { box-shadow: 0 0 12px var(--color-primary-alpha, rgba(179, 136, 255, 0.4)); }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Trix editor theming */
+trix-editor {
+  border-color: var(--color-border) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border-radius: 0.75rem !important;
+}
+
+trix-editor:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 1px var(--color-primary) !important;
+}
+
+trix-toolbar .trix-button-group {
+  border-color: var(--color-border) !important;
+}
+
+trix-toolbar .trix-button {
+  color: var(--color-text-muted) !important;
+  border-color: var(--color-border) !important;
+}
+
+trix-toolbar .trix-button:hover {
+  color: var(--color-primary) !important;
+  background: var(--color-surface-alt) !important;
+}
+
+trix-toolbar .trix-button.trix-active {
+  color: var(--color-primary) !important;
+  background: var(--color-surface-alt) !important;
+}
+
+/* Action Text styles */
+.action-text-editor {
+  min-height: 300px;
+}
+
+/* Checkbox / Radio styling */
+input[type="radio"]:checked,
+input[type="checkbox"]:checked {
+  accent-color: var(--color-primary);
+}
+
+/* Button base */
+.btn-primary {
+  @apply px-6 py-3 rounded-xl font-medium transition-all cursor-pointer inline-flex items-center gap-2;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  color: var(--color-bg);
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 rounded-xl font-medium transition-all text-center inline-flex items-center gap-2;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-text-muted);
+}
+
+/* Empty state */
+.empty-state {
+  @apply text-center py-16 border border-dashed border-[var(--color-border)] rounded-xl;
+}
+
+/* Badge */
+.badge {
+  @apply px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+/* Form labels */
+.form-label {
+  @apply block text-sm font-medium mb-1;
+}
+
+/* Form inputs */
+.form-input {
+  @apply w-full px-4 py-3 rounded-xl transition-colors;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}

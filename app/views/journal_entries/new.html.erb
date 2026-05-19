@@ -1,0 +1,9 @@
+<div class="max-w-2xl mx-auto">
+  <%= link_to [@entry.project, :journal_entries], class: "text-sm text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors inline-flex items-center gap-1 mb-6" do %>
+    ← Back to <%= @entry.project.name %> Journal
+  <% end %>
+
+  <h1 class="text-2xl font-bold mb-6">New Journal Entry</h1>
+
+  <%= render "form", project: @project, entry: @entry %>
+</div>
