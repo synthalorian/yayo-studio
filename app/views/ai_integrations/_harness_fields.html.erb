@@ -1,0 +1,63 @@
+<%# Renders dynamic config fields for a harness type %>
+<% fields = harness_def.config_schema&.dig(:fields) || [] %>
+
+<% if fields.any? %>
+  <div class="text-xs text-[var(--color-text-muted)] mb-3">
+    Configuring <strong><%= harness_def.name %></strong>
+    <% if harness_def.website %>
+      · <%= link_to "Docs →", harness_def.website, target: :_blank, class: "text-[var(--color-primary)] hover:text-[var(--color-secondary)]" %>
+    <% end %>
+  </div>
+
+  <% fields.each do |field| %>
+    <% value = integration.config&.dig(field[:key]) || field[:default] %>
+    <div>
+      <%= label_tag "ai_integration_config_#{field[:key]}", field[:label],
+            class: "block text-sm font-medium mb-1" %>
+      <% if field[:optional] %>
+        <span class="text-xs text-[var(--color-text-muted)]">(optional)</span>
+      <% end %>
+
+      <% case field[:type] %>
+      <% when "string" %>
+        <%= text_field_tag "ai_integration[config][#{field[:key]}]", value,
+              placeholder: field[:label],
+              class: "w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors text-sm" %>
+      <% when "password" %>
+        <%= password_field_tag "ai_integration[config][#{field[:key]}]", value,
+              placeholder: field[:label],
+              class: "w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors text-sm" %>
+      <% when "number" %>
+        <%= number_field_tag "ai_integration[config][#{field[:key]}]", value,
+              step: field[:key].include?("memory") ? "0.01" : "1",
+              class: "w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors text-sm" %>
+      <% when "boolean" %>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <%= check_box_tag "ai_integration[config][#{field[:key]}]", "1", value == true || value == "1",
+                class: "rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]" %>
+          <span class="text-sm">Enabled</span>
+        </label>
+      <% when "select" %>
+        <%= select_tag "ai_integration[config][#{field[:key]}]",
+              options_for_select(field[:options], value),
+              class: "w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors text-sm" %>
+      <% when "path" %>
+        <div class="flex gap-2">
+          <%= text_field_tag "ai_integration[config][#{field[:key]}]", value,
+                placeholder: field[:label],
+                class: "flex-1 px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] font-mono text-sm focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors" %>
+          <% if value.present? && File.exist?(value) %>
+            <span class="px-3 py-3 rounded-xl bg-[var(--color-success)]/10 text-[var(--color-success)] text-xs flex items-center">✓</span>
+          <% end %>
+        </div>
+      <% else %>
+        <%= text_field_tag "ai_integration[config][#{field[:key]}]", value,
+              class: "w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors text-sm" %>
+      <% end %>
+    </div>
+  <% end %>
+<% else %>
+  <div class="text-center py-4 text-sm text-[var(--color-text-muted)]">
+    No additional configuration needed for this harness type.
+  </div>
+<% end %>

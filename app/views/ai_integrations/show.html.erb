@@ -1,0 +1,94 @@
+<div class="max-w-3xl mx-auto">
+  <%= link_to project_ai_integrations_path(@project),
+        class: "text-sm text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors inline-flex items-center gap-1 mb-6" do %>
+    ← Back to Integrations
+  <% end %>
+
+  <% harness = @integration.harness_definition %>
+
+  <div class="p-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] mb-6">
+    <div class="flex items-start justify-between">
+      <div class="flex items-start gap-4">
+        <span class="text-3xl"><%= health_status_icon(@integration.health_status) %></span>
+        <div>
+          <div class="flex items-center gap-3">
+            <h1 class="text-2xl font-bold"><%= @integration.display_name %></h1>
+            <span class="px-3 py-0.5 rounded-full text-xs font-medium
+                  <%= @integration.enabled ? 'bg-[var(--color-success)]/20 text-[var(--color-success)]' : 'bg-[var(--color-surface-alt)] text-[var(--color-text-muted)]' %>">
+              <%= @integration.enabled ? "Enabled" : "Disabled" %>
+            </span>
+          </div>
+          <p class="text-sm text-[var(--color-text-muted)] mt-1"><%= @integration.display_category %></p>
+          <% if harness&.description %>
+            <p class="text-sm mt-2"><%= harness.description %></p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <%= button_to check_project_ai_integration_path(@project, @integration), method: :post,
+              class: "px-3 py-1.5 rounded-lg text-xs border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all" do %>
+          🔍 Health Check
+        <% end %>
+        <%= link_to edit_project_ai_integration_path(@project, @integration),
+              class: "px-3 py-1.5 rounded-lg text-xs border border-[var(--color-border)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all" do %>
+          ⚙️ Edit
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Status details -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+      <div>
+        <p class="text-xs text-[var(--color-text-muted)]">Status</p>
+        <p class="text-sm font-medium <%= health_status_class(@integration.health_status) %>"><%= @integration.health_status.capitalize %></p>
+      </div>
+      <div>
+        <p class="text-xs text-[var(--color-text-muted)]">Provider</p>
+        <p class="text-sm font-medium"><%= @integration.provider.capitalize %></p>
+      </div>
+      <div>
+        <p class="text-xs text-[var(--color-text-muted)]">Last Health Check</p>
+        <p class="text-sm font-medium"><%= @integration.last_health_check ? time_ago(@integration.last_health_check) : "Never" %></p>
+      </div>
+      <div>
+        <p class="text-xs text-[var(--color-text-muted)]">Project</p>
+        <p class="text-sm font-medium text-[var(--color-primary)]"><%= link_to @project.name, @project %></p>
+      </div>
+    </div>
+
+    <!-- CLI path -->
+    <% if @integration.config&.dig("cli_path") %>
+      <div class="mt-4 p-3 rounded-lg bg-[var(--color-surface-alt)]">
+        <p class="text-xs text-[var(--color-text-muted)]">CLI Path</p>
+        <p class="text-sm font-mono"><%= @integration.config["cli_path"] %></p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Config details -->
+  <div class="p-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+    <h2 class="text-lg font-semibold mb-4">Configuration</h2>
+    <% if @integration.config.present? %>
+      <div class="space-y-3">
+        <% @integration.config.except("auto_discovered").each do |key, value| %>
+          <div class="flex items-center justify-between py-2 border-b border-[var(--color-border)] last:border-0">
+            <span class="text-sm text-[var(--color-text-muted)]"><%= key.humanize %></span>
+            <span class="text-sm font-mono"><%= value.to_s.truncate(60) %></span>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-[var(--color-text-muted)]">No configuration set</p>
+    <% end %>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="mt-6 p-6 rounded-xl border border-[var(--color-error)]/30 bg-[var(--color-error)]/5">
+    <h2 class="text-lg font-semibold text-[var(--color-error)] mb-2">Danger Zone</h2>
+    <p class="text-sm text-[var(--color-text-muted)] mb-4">Disconnecting this harness will remove all its configuration.</p>
+    <%= button_to "Disconnect Harness", project_ai_integration_path(@project, @integration),
+          method: :delete, data: { turbo_confirm: "Remove #{@integration.display_name} from #{@project.name}?" },
+          class: "px-4 py-2 rounded-xl text-sm font-medium border border-[var(--color-error)] text-[var(--color-error)] hover:bg-[var(--color-error)]/10 transition-all" %>
+  </div>
+</div>

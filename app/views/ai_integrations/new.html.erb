@@ -1,9 +1,117 @@
-<div class="max-w-2xl mx-auto">
-  <%= link_to @project, class: "text-sm text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors inline-flex items-center gap-1 mb-6" do %>
-    ← Back to <%= @project.name %>
+<div class="max-w-3xl mx-auto">
+  <%= link_to project_ai_integrations_path(@project),
+        class: "text-sm text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors inline-flex items-center gap-1 mb-6" do %>
+    ← Back to Integrations
   <% end %>
 
-  <h1 class="text-2xl font-bold mb-6">Connect AI Harness</h1>
-  <p class="text-[var(--color-text-muted)] text-sm mb-6">Link your AI agents to this project for seamless integration.</p>
-  <%= render "form" %>
+  <h1 class="text-2xl font-bold mb-2">
+    <%= @integration.new_record? ? "Connect AI Harness" : "Edit #{@integration.display_name}" %>
+  </h1>
+  <p class="text-[var(--color-text-muted)] text-sm mb-6">
+    Linking to <strong><%= @project.name %></strong>
+  </p>
+
+  <%= form_with model: [@project, @integration], class: "space-y-6" do |f| %>
+    <% if @integration.new_record? %>
+      <!-- Harness Type Selection -->
+      <div class="p-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+        <h2 class="text-lg font-semibold mb-4">1. Select Harness Type</h2>
+
+        <div class="space-y-6">
+          <% HarnessRegistry.categories.each do |category, cat_name| %>
+            <% harnesses = HarnessRegistry.by_category(category) %>
+            <% next if harnesses.empty? %>
+            <div>
+              <h3 class="text-sm font-medium text-[var(--color-text-muted)] mb-3 flex items-center gap-2">
+                <%= category_icon(category) %> <%= cat_name %>
+              </h3>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                <% harnesses.sort_by(&:name).each do |harness| %>
+                  <label class="cursor-pointer">
+                    <%= f.radio_button :harness_type, harness.key,
+                          class: "peer sr-only",
+                          data: { action: "change->harness-form#select" } %>
+                    <div class="p-3 rounded-xl border-2 border-[var(--color-border)] peer-checked:border-[var(--color-primary)] peer-checked:bg-[var(--color-primary)]/5 transition-all hover:border-[var(--color-primary)]/50">
+                      <h4 class="text-sm font-medium"><%= harness.name %></h4>
+                      <p class="text-xs text-[var(--color-text-muted)] mt-1 line-clamp-2"><%= harness.description %></p>
+                    </div>
+                  </label>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Provider (auto-filled) -->
+      <%= f.hidden_field :provider %>
+    <% else %>
+      <%= f.hidden_field :harness_type %>
+      <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl"><%= health_status_icon(@integration.health_status) %></span>
+          <div>
+            <h3 class="font-semibold"><%= @integration.display_name %></h3>
+            <p class="text-xs text-[var(--color-text-muted)]"><%= @integration.display_category %></p>
+          </div>
+          <%= button_to check_project_ai_integration_path(@project, @integration), method: :post,
+                class: "ml-auto px-3 py-1.5 rounded-lg text-xs border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all" do %>
+            🔍 Check Health
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Harness-specific Configuration -->
+    <div class="p-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]" id="harness-config">
+      <h2 class="text-lg font-semibold mb-4">2. Configuration</h2>
+
+      <div class="space-y-4" id="dynamic-fields">
+        <% if @harness_def&.config_schema&.dig(:fields) %>
+          <%= render "harness_fields", harness_def: @harness_def, f: f, integration: @integration %>
+        <% else %>
+          <div class="text-center py-8">
+            <p class="text-sm text-[var(--color-text-muted)]">Select a harness type above to see its configuration fields.</p>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="mt-6">
+        <%= f.label :name, "Integration Name", class: "block text-sm font-medium mb-1" %>
+        <%= f.text_field :name, placeholder: @harness_def&.name || "Custom name...",
+              class: "w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors" %>
+      </div>
+
+      <label class="flex items-center gap-2 cursor-pointer mt-4">
+        <%= f.check_box :enabled, class: "rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]" %>
+        <span class="text-sm font-medium">Enable immediately</span>
+      </label>
+    </div>
+
+    <div class="flex items-center gap-3 pt-2">
+      <%= f.submit class: "px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-[var(--color-bg)] hover:opacity-90 transition-all cursor-pointer" %>
+      <%= link_to "Cancel", @integration.new_record? ? project_ai_integrations_path(@project) : project_ai_integration_path(@project, @integration),
+            class: "px-6 py-3 rounded-xl font-medium border border-[var(--color-border)] hover:border-[var(--color-text-muted)] transition-all text-center" %>
+    </div>
+  <% end %>
 </div>
+
+<% if @integration.new_record? %>
+<script>
+// Dynamic form: swap config fields when harness type changes
+document.addEventListener('change', function(e) {
+  if (e.target.name === 'ai_integration[harness_type]') {
+    const harnessType = e.target.value;
+    const form = e.target.closest('form');
+    form.querySelector('[name="ai_integration[provider]"]').value = harnessType.split('-')[0];
+
+    // Fetch config fields via AJAX
+    fetch('/harnesses/' + harnessType + '/fields')
+      .then(r => r.text())
+      .then(html => {
+        document.getElementById('dynamic-fields').innerHTML = html;
+      });
+  }
+});
+</script>
+<% end %>

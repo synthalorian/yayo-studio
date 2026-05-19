@@ -1,0 +1,96 @@
+<div class="mb-6">
+  <%= link_to @project, class: "text-sm text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors inline-flex items-center gap-1 mb-4" do %>
+    ← Back to <%= @project.name %>
+  <% end %>
+
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold">🤖 AI Integrations</h1>
+      <p class="text-[var(--color-text-muted)] text-sm mt-1">
+        <%= @project.name %> — <%= pluralize @integrations.count, "harness" %> connected
+      </p>
+    </div>
+    <%= link_to new_project_ai_integration_path(@project),
+          class: "px-4 py-2 rounded-xl font-medium bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-[var(--color-bg)] text-sm hover:opacity-90 transition-all inline-flex items-center gap-2" do %>
+      + Connect Harness
+    <% end %>
+  </div>
+</div>
+
+<!-- Connected integrations -->
+<div class="space-y-3">
+  <% if @integrations.any? %>
+    <% @integrations.each do |int| %>
+      <% harness = int.harness_definition %>
+      <div class="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+        <div class="flex items-start justify-between">
+          <div class="flex items-start gap-4">
+            <span class="text-2xl mt-1"><%= health_status_icon(int.health_status) %></span>
+            <div>
+              <div class="flex items-center gap-3">
+                <h3 class="font-semibold"><%= int.display_name %></h3>
+                <span class="px-2 py-0.5 rounded-full text-xs <%= health_status_class(int.health_status) %> bg-[var(--color-surface-alt)]">
+                  <%= int.health_status %>
+                </span>
+              </div>
+              <p class="text-xs text-[var(--color-text-muted)] mt-1">
+                <%= int.display_category %>
+                <% if int.config&.dig("version") && int.config["version"] != "?" %>
+                  · v<%= int.config["version"] %>
+                <% end %>
+                <% if int.last_health_check %>
+                  · last check: <%= time_ago(int.last_health_check) %>
+                <% end %>
+              </p>
+              <% if harness&.description %>
+                <p class="text-xs text-[var(--color-text-muted)] mt-2"><%= harness.description %></p>
+              <% end %>
+              <!-- Config summary -->
+              <% if int.config.present? %>
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <% int.config.except("cli_path", "auto_discovered").each do |key, value| %>
+                    <span class="text-xs px-2 py-0.5 rounded bg-[var(--color-surface-alt)] text-[var(--color-text-muted)]">
+                      <%= key.humanize %>: <%= value.to_s.truncate(30) %>
+                    </span>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <%= button_to check_project_ai_integration_path(@project, int), method: :post,
+                  class: "px-3 py-1.5 rounded-lg text-xs border border-[var(--color-border)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all",
+                  title: "Check health" do %>
+              🔍 Health
+            <% end %>
+            <% if int.launch_command %>
+              <%= button_to launch_project_ai_integration_path(@project, int), method: :post,
+                    class: "px-3 py-1.5 rounded-lg text-xs border border-[var(--color-border)] hover:border-[var(--color-success)] hover:text-[var(--color-success)] transition-all",
+                    title: "Launch command" do %>
+                🚀 Launch
+              <% end %>
+            <% end %>
+            <%= link_to edit_project_ai_integration_path(@project, int),
+                  class: "px-3 py-1.5 rounded-lg text-xs border border-[var(--color-border)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all" do %>
+              ⚙️
+            <% end %>
+            <%= button_to project_ai_integration_path(@project, int), method: :delete,
+                  class: "px-3 py-1.5 rounded-lg text-xs border border-[var(--color-border)] hover:border-[var(--color-error)] hover:text-[var(--color-error)] transition-all",
+                  data: { turbo_confirm: "Disconnect #{int.display_name}?" } do %>
+              ✕
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="text-center py-16 border border-dashed border-[var(--color-border)] rounded-xl">
+      <div class="text-4xl mb-4">🤖</div>
+      <h3 class="text-lg font-semibold text-[var(--color-text-muted)]">No AI harnesses connected</h3>
+      <p class="text-sm text-[var(--color-text-muted)] mt-1">Connect coding agents, local models, or game engine bridges</p>
+      <%= link_to "Browse Harnesses", ai_harnesses_path,
+            class: "inline-block mt-4 px-6 py-2 rounded-xl text-sm font-medium bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-[var(--color-bg)]" %>
+    </div>
+  <% end %>
+</div>
