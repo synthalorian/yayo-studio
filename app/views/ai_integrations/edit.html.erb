@@ -1,8 +1,60 @@
-<div class="max-w-2xl mx-auto">
-  <%= link_to @project, class: "text-sm text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors inline-flex items-center gap-1 mb-6" do %>
-    ← Back to <%= @project.name %>
+<div class="max-w-3xl mx-auto">
+  <%= link_to project_ai_integration_path(@project, @integration),
+        class: "text-sm text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors inline-flex items-center gap-1 mb-6" do %>
+    ← Back to Integration
   <% end %>
 
-  <h1 class="text-2xl font-bold mb-6">Edit AI Integration</h1>
-  <%= render "form" %>
+  <h1 class="text-2xl font-bold mb-2">Edit <%= @integration.display_name %></h1>
+  <p class="text-[var(--color-text-muted)] text-sm mb-6">
+    Connected to <strong><%= @project.name %></strong>
+  </p>
+
+  <%= form_with model: [@project, @integration], class: "space-y-6" do |f| %>
+    <%= f.hidden_field :harness_type %>
+
+    <!-- Current status -->
+    <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl"><%= health_status_icon(@integration.health_status) %></span>
+        <div>
+          <h3 class="font-semibold"><%= @integration.display_name %></h3>
+          <p class="text-xs text-[var(--color-text-muted)]"><%= @integration.display_category %></p>
+        </div>
+        <%= button_to check_project_ai_integration_path(@project, @integration), method: :post,
+              class: "ml-auto px-3 py-1.5 rounded-lg text-xs border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-all" do %>
+          🔍 Check Health
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Configuration fields -->
+    <div class="p-6 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+      <h2 class="text-lg font-semibold mb-4">Configuration</h2>
+
+      <div class="space-y-4">
+        <% if @harness_def&.config_schema&.dig(:fields) %>
+          <%= render "harness_fields", harness_def: @harness_def, f: f, integration: @integration %>
+        <% end %>
+
+        <%= f.hidden_field :provider %>
+
+        <div>
+          <%= f.label :name, "Integration Name", class: "block text-sm font-medium mb-1" %>
+          <%= f.text_field :name,
+                class: "w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors" %>
+        </div>
+
+        <label class="flex items-center gap-2 cursor-pointer">
+          <%= f.check_box :enabled, class: "rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]" %>
+          <span class="text-sm font-medium">Enabled</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3 pt-2">
+      <%= f.submit class: "px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-[var(--color-bg)] hover:opacity-90 transition-all cursor-pointer" %>
+      <%= link_to "Cancel", project_ai_integration_path(@project, @integration),
+            class: "px-6 py-3 rounded-xl font-medium border border-[var(--color-border)] hover:border-[var(--color-text-muted)] transition-all text-center" %>
+    </div>
+  <% end %>
 </div>

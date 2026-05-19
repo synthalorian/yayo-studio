@@ -13,6 +13,11 @@ Rails.application.routes.draw do
   # Dashboard
   get "dashboard" => "dashboard#show", as: :dashboard
 
+  # AI Harnesses — global dashboard
+  get "harnesses" => "ai_integrations#global", as: :ai_harnesses
+  post "harnesses/discover" => "ai_integrations#discover", as: :discover_harnesses
+  get "harnesses/:harness_type/fields" => "ai_integrations#harness_fields", as: :harness_fields
+
   # Projects
   resources :projects do
     # Journal entries nested under projects
@@ -26,10 +31,10 @@ Rails.application.routes.draw do
     resources :assets, except: [:index]
 
     # AI integrations nested under projects
-    resources :ai_integrations, except: [:show, :index] do
+    resources :ai_integrations do
       member do
-        post :test
-        post :sync
+        post :check
+        post :launch
       end
     end
   end

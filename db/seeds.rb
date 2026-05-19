@@ -63,3 +63,29 @@ unless User.exists?
   puts ""
   puts "Login: synth@yayo.studio / yayo_studio"
 end
+
+# Seed demo AI harness connections from auto-discovery
+puts "Seeding AI harness connections..."
+harness_project = Project.find_by(name: "Yayo Studio")
+if harness_project && harness_project.ai_integrations.empty?
+  discovered = HarnessRegistry.auto_discover!
+
+  discovered.first(4).each do |entry|
+    harness_def = HarnessRegistry.find(entry[:harness])
+    next unless harness_def
+
+    harness_project.ai_integrations.create(
+      name: harness_def.name,
+      provider: entry[:harness].split("-").first,
+      harness_type: entry[:harness],
+      status: "connected",
+      enabled: true,
+      config: {
+        "cli_path" => entry[:path],
+        "version" => entry[:version],
+        "auto_discovered" => true
+      }
+    )
+    puts "  ✓ #{harness_def.name}"
+  end
+end

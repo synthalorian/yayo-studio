@@ -1,0 +1,114 @@
+<!-- Global AI Harness Dashboard -->
+<div class="mb-8">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold">🤖 AI Harness Grid</h1>
+      <p class="text-[var(--color-text-muted)] mt-1">All your AI agents, frameworks, and bridges — one dashboard</p>
+    </div>
+    <div class="flex items-center gap-3">
+      <%= button_to discover_harnesses_path, method: :post,
+            class: "px-4 py-2 rounded-xl font-medium border border-[var(--color-border)] hover:border-[var(--color-primary)] text-sm transition-all inline-flex items-center gap-2" do %>
+        🔍 Auto-Discover
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Status overview -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+  <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div class="flex items-center justify-between">
+      <span class="text-2xl">🟢</span>
+      <span class="text-2xl font-bold text-[var(--color-success)]"><%= @by_status["connected"]&.size || 0 %></span>
+    </div>
+    <p class="text-sm text-[var(--color-text-muted)] mt-1">Connected</p>
+  </div>
+  <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div class="flex items-center justify-between">
+      <span class="text-2xl">🔴</span>
+      <span class="text-2xl font-bold text-[var(--color-error)]"><%= @by_status["disconnected"]&.size || 0 %></span>
+    </div>
+    <p class="text-sm text-[var(--color-text-muted)] mt-1">Disconnected</p>
+  </div>
+  <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div class="flex items-center justify-between">
+      <span class="text-2xl">🟡</span>
+      <span class="text-2xl font-bold text-[var(--color-warning)]"><%= @by_status["error"]&.size || 0 %></span>
+    </div>
+    <p class="text-sm text-[var(--color-text-muted)] mt-1">Errors</p>
+  </div>
+  <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+    <div class="flex items-center justify-between">
+      <span class="text-2xl">📡</span>
+      <span class="text-2xl font-bold text-[var(--color-primary)]"><%= @discovered.size %></span>
+    </div>
+    <p class="text-sm text-[var(--color-text-muted)] mt-1">Available on System</p>
+  </div>
+</div>
+
+<!-- Discovered Harnesses (on system) -->
+<div class="mb-8">
+  <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+    <span>📡</span> Detected on This Machine
+  </h2>
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+    <% @discovered.each do |entry| %>
+      <% harness_def = HarnessRegistry.find(entry[:harness]) %>
+      <div class="p-4 rounded-xl border border-[var(--color-success)]/30 bg-[var(--color-surface)]">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="w-2 h-2 rounded-full bg-[var(--color-success)]"></span>
+          <h3 class="font-semibold text-sm"><%= harness_def&.name || entry[:harness].titleize %></h3>
+        </div>
+        <p class="text-xs text-[var(--color-text-muted)]"><%= entry[:path] %></p>
+        <% if entry[:version] && entry[:version] != "?" %>
+          <p class="text-xs text-[var(--color-text-muted)] mt-1">v<%= entry[:version] %></p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @discovered.empty? %>
+    <div class="text-center py-8 border border-dashed border-[var(--color-border)] rounded-xl">
+      <p class="text-sm text-[var(--color-text-muted)]">No AI harnesses detected. Click Auto-Discover to scan your system.</p>
+    </div>
+  <% end %>
+</div>
+
+<!-- All harness categories -->
+<% @harnesses.group_by(&:category).each do |category, harnesses| %>
+  <div class="mb-8">
+    <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+      <span><%= category_icon(category) %></span>
+      <%= HarnessRegistry.categories[category] %>
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <% harnesses.sort_by(&:name).each do |harness| %>
+        <% existing = @integrations.find { |i| i.harness_type == harness.key } %>
+        <% status_icon = existing ? (existing.health_status == "connected" ? "🟢" : "🔴") : "⚪" %>
+        <%= link_to existing ? project_ai_integration_path(existing.project, existing) : new_project_ai_integration_path(existing&.project || current_user.projects.first, harness_type: harness.key),
+              class: "p-4 rounded-xl border #{existing ? 'border-[var(--color-border)]' : 'border-dashed border-[var(--color-border)]'} bg-[var(--color-surface)] hover:border-[var(--color-primary)] transition-all group" do %>
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-2">
+              <span><%= status_icon %></span>
+              <h3 class="font-semibold text-sm group-hover:text-[var(--color-primary)] transition-colors"><%= harness.name %></h3>
+            </div>
+            <% if existing %>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)]">Connected</span>
+            <% else %>
+              <span class="text-xs text-[var(--color-text-muted)]">+ Add</span>
+            <% end %>
+          </div>
+          <p class="text-xs text-[var(--color-text-muted)] mt-2 line-clamp-2"><%= harness.description %></p>
+          <div class="flex items-center gap-2 mt-2 text-xs text-[var(--color-text-muted)]">
+            <% if harness.cli_name %>
+              <span class="px-2 py-0.5 rounded bg-[var(--color-surface-alt)]"><%= harness.cli_name %></span>
+            <% end %>
+            <% if existing %>
+              <span class="ml-auto">in <%= existing.project.name %></span>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

@@ -56,4 +56,34 @@ module ApplicationHelper
     else format_date(timestamp.to_date)
     end
   end
+
+  def category_icon(category)
+    icons = {
+      cli_agents: "💻",
+      agent_frameworks: "🧠",
+      local_inference: "🏠",
+      mcp_protocol: "🔗",
+      game_engine: "🎮",
+      custom: "⚙️"
+    }
+    icons[category] || "📦"
+  end
+
+  def health_status_icon(status)
+    case status
+    when "connected" then "🟢"
+    when "disconnected" then "🔴"
+    when "error" then "🟡"
+    else "⚪"
+    end
+  end
+
+  def health_status_class(status)
+    case status
+    when "connected" then "text-[var(--color-success)]"
+    when "disconnected" then "text-[var(--color-error)]"
+    when "error" then "text-[var(--color-warning)]"
+    else "text-[var(--color-text-muted)]"
+    end
+  end
 end

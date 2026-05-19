@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_19_075513) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_19_083823) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -56,11 +56,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_075513) do
     t.jsonb "config"
     t.datetime "created_at", null: false
     t.boolean "enabled"
+    t.string "endpoint_url"
+    t.string "harness_type"
+    t.datetime "last_health_check"
     t.string "name"
     t.bigint "project_id", null: false
     t.string "provider"
+    t.string "status", default: "unknown"
     t.datetime "updated_at", null: false
+    t.index ["harness_type"], name: "index_ai_integrations_on_harness_type"
     t.index ["project_id"], name: "index_ai_integrations_on_project_id"
+    t.index ["status"], name: "index_ai_integrations_on_status"
   end
 
   create_table "assets", force: :cascade do |t|
