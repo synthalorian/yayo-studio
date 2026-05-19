@@ -1,0 +1,40 @@
+<div class="mb-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold">Journal</h1>
+      <p class="text-[var(--color-text-muted)] text-sm mt-1">All entries across every project</p>
+    </div>
+  </div>
+</div>
+
+<div class="space-y-3">
+  <% @entries.each do |entry| %>
+    <%= link_to [entry.project, entry], class: "block p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary)]/50 transition-all group" do %>
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="font-medium group-hover:text-[var(--color-primary)] transition-colors"><%= entry.title %></h3>
+          <p class="text-xs text-[var(--color-text-muted)] mt-1">
+            In <span class="text-[var(--color-primary)]"><%= entry.project.name %></span>
+            · <%= format_date(entry.entry_date) %>
+          </p>
+        </div>
+        <span class="text-xs text-[var(--color-text-muted)]"><%= time_ago(entry.created_at) %></span>
+      </div>
+      <% if entry.tags.any? %>
+        <div class="flex items-center gap-2 mt-2">
+          <% entry.tags.each do |tag| %>
+            <span class="px-2 py-0.5 rounded-full text-xs bg-[var(--color-surface-alt)] text-[var(--color-text-muted)]"><%= tag.name %></span>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <% if @entries.empty? %>
+    <div class="text-center py-16">
+      <div class="text-4xl mb-4">📝</div>
+      <h3 class="text-lg font-semibold text-[var(--color-text-muted)]">No journal entries yet</h3>
+      <p class="text-sm text-[var(--color-text-muted)] mt-1">Entries from all your projects will appear here</p>
+    </div>
+  <% end %>
+</div>

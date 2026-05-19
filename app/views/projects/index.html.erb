@@ -1,0 +1,60 @@
+<div class="mb-8">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold">Projects</h1>
+      <p class="text-[var(--color-text-muted)] mt-1">All your creative works in one grid</p>
+    </div>
+    <%= link_to new_project_path,
+          class: "px-4 py-2 rounded-xl font-medium bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-[var(--color-bg)] hover:opacity-90 transition-all inline-flex items-center gap-2" do %>
+      <span>+</span> New Project
+    <% end %>
+  </div>
+
+  <!-- Type filter -->
+  <div class="flex flex-wrap gap-2 mt-4">
+    <%= link_to projects_path, class: "px-3 py-1.5 rounded-lg text-sm border border-[var(--color-border)] transition-colors #{(params[:type].blank? ? 'bg-[var(--color-primary)]/20 border-[var(--color-primary)] text-[var(--color-primary)]' : 'hover:border-[var(--color-primary)]/50')}" do %>
+      All
+    <% end %>
+    <% @project_types.each do |type| %>
+      <%= link_to projects_path(type: type.name),
+            class: "px-3 py-1.5 rounded-lg text-sm border border-[var(--color-border)] transition-colors #{params[:type] == type.name ? 'bg-[var(--color-primary)]/20 border-[var(--color-primary)] text-[var(--color-primary)]' : 'hover:border-[var(--color-primary)]/50'}" do %>
+        <%= type.icon %> <%= type.name %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  <% @projects.each do |project| %>
+    <%= link_to project, class: "group p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary)] hover:shadow-lg hover:shadow-[var(--color-primary)]/5 transition-all" do %>
+      <div class="flex items-start justify-between mb-3">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl"><%= project_type_icon(project.project_type) %></span>
+          <div>
+            <h3 class="font-semibold group-hover:text-[var(--color-primary)] transition-colors"><%= project.name %></h3>
+            <span class="text-xs text-[var(--color-text-muted)]"><%= project.project_type&.name || "Uncategorized" %></span>
+          </div>
+        </div>
+        <%= status_badge(project.status) %>
+      </div>
+      <% if project.description.present? %>
+        <p class="text-sm text-[var(--color-text-muted)] line-clamp-2"><%= project.description %></p>
+      <% end %>
+      <div class="flex items-center gap-3 mt-3 text-xs text-[var(--color-text-muted)]">
+        <span><%= pluralize project.journal_entries.count, "entry" %></span>
+        <span><%= pluralize project.assets.count, "asset" %></span>
+        <span class="ml-auto"><%= time_ago(project.updated_at) %></span>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<% if @projects.empty? %>
+  <div class="text-center py-16">
+    <div class="text-5xl mb-4">📂</div>
+    <h3 class="text-lg font-semibold text-[var(--color-text-muted)]">No projects yet</h3>
+    <p class="text-sm text-[var(--color-text-muted)] mt-1">The grid is empty. Time to create something.</p>
+    <%= link_to "Create Your First Project", new_project_path,
+          class: "inline-block mt-4 px-6 py-2 rounded-xl font-medium bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-[var(--color-bg)]" %>
+  </div>
+<% end %>

@@ -1,0 +1,8 @@
+<div class="max-w-2xl mx-auto">
+  <%= link_to @project, class: "text-sm text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors inline-flex items-center gap-1 mb-6" do %>
+    ← Back to <%= @project.name %>
+  <% end %>
+
+  <h1 class="text-2xl font-bold mb-6">Edit Asset</h1>
+  <%= render "form" %>
+</div>

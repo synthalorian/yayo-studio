@@ -1,0 +1,30 @@
+<%= form_with model: [@project, @integration], class: "space-y-5" do |f| %>
+  <div>
+    <%= f.label :name, class: "block text-sm font-medium mb-1" %>
+    <%= f.text_field :name, placeholder: "e.g., Hermes Agent", required: true,
+          class: "w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors" %>
+  </div>
+
+  <div>
+    <%= f.label :provider, class: "block text-sm font-medium mb-1" %>
+    <%= f.select :provider, AiIntegration::PROVIDERS.map { |p| [p.capitalize, p] }, { include_blank: "Select provider..." },
+          class: "w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors" %>
+    <p class="text-xs text-[var(--color-text-muted)] mt-1">Connect to Hermes, OpenAI, Anthropic, or custom endpoints</p>
+  </div>
+
+  <div>
+    <%= f.label :config, "Configuration (JSON)", class: "block text-sm font-medium mb-1" %>
+    <%= f.text_area :config, value: @integration.config&.to_json, rows: 5,
+          class: "w-full px-4 py-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] font-mono text-sm focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] transition-colors" %>
+  </div>
+
+  <label class="flex items-center gap-2 cursor-pointer">
+    <%= f.check_box :enabled, class: "rounded border-[var(--color-border)] text-[var(--color-primary)] focus:ring-[var(--color-primary)]" %>
+    <span class="text-sm font-medium">Enable this integration</span>
+  </label>
+
+  <div class="flex items-center gap-3 pt-2">
+    <%= f.submit class: "px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-[var(--color-bg)] hover:opacity-90 transition-all cursor-pointer" %>
+    <%= link_to "Cancel", @project, class: "px-6 py-3 rounded-xl font-medium border border-[var(--color-border)] hover:border-[var(--color-text-muted)] transition-all text-center" %>
+  </div>
+<% end %>

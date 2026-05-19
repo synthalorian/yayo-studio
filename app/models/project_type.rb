@@ -1,0 +1,25 @@
+class ProjectType < ApplicationRecord
+  has_many :projects, dependent: :nullify
+
+  validates :name, presence: true, uniqueness: true
+  validates :position, numericality: { allow_nil: true }
+
+  scope :ordered, -> { order(position: :asc, name: :asc) }
+
+  ICONS = {
+    "Game" => "🎮",
+    "Music" => "🎵",
+    "Code" => "💻",
+    "Writing" => "✍️",
+    "Art" => "🎨",
+    "Design" => "🎯",
+    "System" => "🔧",
+    "Video" => "🎬",
+    "AI" => "🤖",
+    "Other" => "📁"
+  }.freeze
+
+  def default_icon
+    ICONS[name] || "📁"
+  end
+end

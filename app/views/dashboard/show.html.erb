@@ -1,0 +1,108 @@
+<!-- Dashboard Header -->
+<div class="mb-8">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold">Welcome back, <%= current_user.name %></h1>
+      <p class="text-[var(--color-text-muted)] mt-1">Your creative grid has <strong class="text-[var(--color-primary)]"><%= @stats[:active] %></strong> active projects</p>
+    </div>
+    <%= link_to new_project_path,
+          class: "px-4 py-2 rounded-xl font-medium bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-[var(--color-bg)] hover:opacity-90 transition-all inline-flex items-center gap-2" do %>
+      <span>+</span> New Project
+    <% end %>
+  </div>
+
+  <!-- Stats row -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+    <% [
+      { label: "Total Projects", value: @stats[:total], icon: "📊" },
+      { label: "Active", value: @stats[:active], icon: "✨" },
+      { label: "Archived", value: @stats[:archived], icon: "📦" },
+      { label: "Journal Entries", value: @stats[:entries], icon: "📝" }
+    ].each do |stat| %>
+      <div class="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)]">
+        <div class="flex items-center justify-between">
+          <span class="text-2xl"><%= stat[:icon] %></span>
+          <span class="text-3xl font-bold text-[var(--color-primary)]"><%= stat[:value] %></span>
+        </div>
+        <p class="text-sm text-[var(--color-text-muted)] mt-1"><%= stat[:label] %></p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Project grid -->
+<div class="mb-8">
+  <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+    <span>📂</span> Your Projects
+  </h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <% @projects.each do |project| %>
+      <%= link_to project, class: "group p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary)] hover:shadow-lg hover:shadow-[var(--color-primary)]/5 transition-all" do %>
+        <div class="flex items-start justify-between mb-3">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl"><%= project_type_icon(project.project_type) %></span>
+            <div>
+              <h3 class="font-semibold group-hover:text-[var(--color-primary)] transition-colors"><%= project.name %></h3>
+              <span class="text-xs text-[var(--color-text-muted)]"><%= project.project_type&.name || "Uncategorized" %></span>
+            </div>
+          </div>
+          <%= status_badge(project.status) %>
+        </div>
+        <% if project.description.present? %>
+          <p class="text-sm text-[var(--color-text-muted)] line-clamp-2"><%= project.description %></p>
+        <% end %>
+        <div class="flex items-center gap-3 mt-3 text-xs text-[var(--color-text-muted)]">
+          <span><%= pluralize project.journal_entries.count, "entry" %></span>
+          <span><%= pluralize project.assets.count, "asset" %></span>
+          <span class="ml-auto"><%= time_ago(project.updated_at) %></span>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% if @projects.empty? %>
+    <div class="text-center py-12">
+      <div class="text-4xl mb-4">🎹</div>
+      <h3 class="text-lg font-semibold text-[var(--color-text-muted)]">No projects yet</h3>
+      <p class="text-sm text-[var(--color-text-muted)] mt-1">Create your first project to start tracking your creative work</p>
+      <%= link_to "Create Project", new_project_path,
+            class: "inline-block mt-4 px-6 py-2 rounded-xl font-medium bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-[var(--color-bg)]" %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Recent journal entries -->
+<div class="mb-8">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-xl font-semibold flex items-center gap-2">
+      <span>📝</span> Recent Journal Entries
+    </h2>
+    <%= link_to all_entries_path, class: "text-sm text-[var(--color-primary)] hover:text-[var(--color-secondary)] transition-colors" do %>
+      View all →
+    <% end %>
+  </div>
+
+  <div class="space-y-3">
+    <% @recent_entries.each do |entry| %>
+      <%= link_to [entry.project, entry], class: "block p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary)]/50 transition-all" do %>
+        <div class="flex items-center justify-between">
+          <div>
+            <h4 class="font-medium"><%= entry.title %></h4>
+            <p class="text-xs text-[var(--color-text-muted)] mt-1">
+              In <span class="text-[var(--color-primary)]"><%= entry.project.name %></span>
+              · <%= format_date(entry.entry_date) %>
+            </p>
+          </div>
+          <span class="text-sm text-[var(--color-text-muted)]"><%= time_ago(entry.created_at) %></span>
+        </div>
+      <% end %>
+    <% end %>
+
+    <% if @recent_entries.empty? %>
+      <p class="text-center py-8 text-sm text-[var(--color-text-muted)]">
+        No journal entries yet. Start documenting your process!
+      </p>
+    <% end %>
+  </div>
+</div>
