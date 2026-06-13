@@ -21,14 +21,14 @@ Rails.application.routes.draw do
   # Projects
   resources :projects do
     # Journal entries nested under projects
-    resources :journal_entries, as: :entries, path: :journal, except: [:index] do
+    resources :journal_entries, as: :entries, path: :journal, except: [ :index ] do
       collection do
         get :search
       end
     end
 
     # Assets nested under projects
-    resources :assets, except: [:index]
+    resources :assets, except: [ :index ]
 
     # AI integrations nested under projects
     resources :ai_integrations do
@@ -40,10 +40,10 @@ Rails.application.routes.draw do
   end
 
   # Standalone journal browsing
-  resources :journal_entries, only: [:index], as: :all_entries, path: "/journal"
+  resources :journal_entries, only: [ :index ], as: :all_entries, path: "/journal"
 
   # Global settings
-  resource :settings, only: [:show, :update]
+  resource :settings, only: [ :show, :update ]
 
   # Root
   root "dashboard#show"

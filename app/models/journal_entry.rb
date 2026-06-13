@@ -5,7 +5,7 @@ class JournalEntry < ApplicationRecord
   has_many :taggings, as: :taggable, dependent: :destroy
   has_many :tags, through: :taggings
 
-  validates :title, presence: true
+  validates :title, presence: true, length: { maximum: 255 }
 
   scope :recent, -> { order(entry_date: :desc, created_at: :desc) }
 

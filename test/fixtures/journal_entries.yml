@@ -1,0 +1,14 @@
+entry_one:
+  title: "First Entry"
+  entry_date: <%= Date.current %>
+  project: holy_lands
+
+entry_two:
+  title: "Second Entry"
+  entry_date: <%= Date.current - 1 %>
+  project: holy_lands
+
+entry_three:
+  title: "Third Entry"
+  entry_date: <%= Date.current %>
+  project: open_habit

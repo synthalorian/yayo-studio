@@ -1,0 +1,35 @@
+synthwave:
+  name: "synthwave-84"
+  colors:
+    background: "#0a0a1a"
+    surface: "#1a0a2e"
+    primary: "#b388ff"
+    secondary: "#00e5ff"
+    accent: "#ff6ec7"
+    text: "#e0d0f0"
+    text_muted: "#7a5f9a"
+    border: "#3d2a5e"
+    success: "#00e676"
+    warning: "#ffab00"
+    error: "#ff5252"
+    gradient_start: "#b388ff"
+    gradient_end: "#00e5ff"
+  is_system: true
+
+dark:
+  name: "dark"
+  colors:
+    background: "#0f0f0f"
+    surface: "#1a1a2e"
+    primary: "#6366f1"
+    secondary: "#22d3ee"
+    accent: "#f472b6"
+    text: "#e2e8f0"
+    text_muted: "#64748b"
+    border: "#334155"
+    success: "#22c55e"
+    warning: "#eab308"
+    error: "#ef4444"
+    gradient_start: "#6366f1"
+    gradient_end: "#22d3ee"
+  is_system: true

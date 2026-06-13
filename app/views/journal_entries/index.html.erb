@@ -9,7 +9,7 @@
 
 <div class="space-y-3">
   <% @entries.each do |entry| %>
-    <%= link_to [entry.project, entry], class: "block p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary)]/50 transition-all group" do %>
+    <%= link_to project_entry_path(entry.project, entry), class: "block p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary)]/50 transition-all group" do %>
       <div class="flex items-center justify-between">
         <div>
           <h3 class="font-medium group-hover:text-[var(--color-primary)] transition-colors"><%= entry.title %></h3>

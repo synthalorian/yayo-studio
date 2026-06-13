@@ -1,0 +1,7 @@
+tag_one:
+  name: "urgent"
+  color: "#ff0000"
+
+tag_two:
+  name: "feature"
+  color: "#00ff00"

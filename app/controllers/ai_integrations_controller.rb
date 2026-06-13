@@ -1,6 +1,6 @@
 class AiIntegrationsController < ApplicationController
   before_action :require_login
-  before_action :set_project, except: [:global, :discover, :harness_fields]
+  before_action :set_project, except: [ :global, :discover, :harness_fields ]
 
   # Global harness dashboard — all integrations across all projects
   def global
@@ -113,11 +113,11 @@ class AiIntegrationsController < ApplicationController
     @integration = @project.ai_integrations.find(params[:id])
     status = @integration.check_health!
     status_icon = case status
-                  when "connected" then "🟢"
-                  when "disconnected" then "🔴"
-                  when "error" then "🟡"
-                  else "⚪"
-                  end
+    when "connected" then "🟢"
+    when "disconnected" then "🔴"
+    when "error" then "🟡"
+    else "⚪"
+    end
     redirect_back fallback_location: project_ai_integrations_path(@project),
                   notice: "#{status_icon} #{@integration.display_name}: #{status}"
   end

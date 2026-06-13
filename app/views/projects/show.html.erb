@@ -41,7 +41,7 @@
       <h2 class="text-xl font-semibold flex items-center gap-2">
         <span>📝</span> Journal
       </h2>
-      <%= link_to new_project_journal_entry_path(@project),
+      <%= link_to new_project_entry_path(@project),
             class: "px-3 py-1.5 rounded-lg text-sm font-medium bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-[var(--color-bg)] hover:opacity-90 transition-all" do %>
         + New Entry
       <% end %>
@@ -49,7 +49,7 @@
 
     <div class="space-y-3">
       <% @journal_entries.each do |entry| %>
-        <%= link_to [@project, entry], class: "block p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary)]/50 transition-all group" do %>
+        <%= link_to project_entry_path(@project, entry), class: "block p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary)]/50 transition-all group" do %>
           <div class="flex items-center justify-between">
             <h3 class="font-medium group-hover:text-[var(--color-primary)] transition-colors"><%= entry.title %></h3>
             <span class="text-xs text-[var(--color-text-muted)]"><%= format_date(entry.entry_date) %></span>

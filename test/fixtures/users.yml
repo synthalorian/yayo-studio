@@ -1,0 +1,11 @@
+synth:
+  email: "synth@yayo.studio"
+  name: "Synth"
+  password_digest: <%= BCrypt::Password.create("yayo_studio") %>
+  theme_name: "synthwave-84"
+
+another_user:
+  email: "another@example.com"
+  name: "Another User"
+  password_digest: <%= BCrypt::Password.create("password123") %>
+  theme_name: "dark"

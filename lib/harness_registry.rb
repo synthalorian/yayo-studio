@@ -1,3 +1,5 @@
+require "shellwords"
+
 # frozen_string_literal: true
 
 # Harness Registry — every AI agent/tool in existence
@@ -52,16 +54,17 @@ class HarnessRegistry
     end
 
     def find_cli(name, extra_paths = [])
+      escaped_name = Shellwords.escape(name)
       # Check PATH first
-      path = `which #{name} 2>/dev/null`.strip
+      path = `which #{escaped_name} 2>/dev/null`.strip
       return path unless path.empty?
 
       # Check common locations
       common = [
-        "/usr/local/bin/#{name}",
-        "/usr/bin/#{name}",
-        "/home/synth/.local/bin/#{name}",
-        "/home/synth/.local/share/mise/installs/*/bin/#{name}",
+        "/usr/local/bin/#{escaped_name}",
+        "/usr/bin/#{escaped_name}",
+        "/home/synth/.local/bin/#{escaped_name}",
+        "/home/synth/.local/share/mise/installs/*/bin/#{escaped_name}",
         *extra_paths
       ]
 
@@ -71,7 +74,7 @@ class HarnessRegistry
       end
 
       # Check mise-managed tools
-      mise_path = `mise which #{name} 2>/dev/null`.strip
+      mise_path = `mise which #{escaped_name} 2>/dev/null`.strip
       return mise_path unless mise_path.empty?
 
       nil
@@ -80,9 +83,11 @@ class HarnessRegistry
     def detect_version(path, discovery_cmd)
       return "?" unless path && discovery_cmd
 
-      result = `#{discovery_cmd.call(path)} 2>/dev/null`.strip
+      escaped_path = Shellwords.escape(path)
+      result = `#{discovery_cmd.call(escaped_path)} 2>/dev/null`.strip
       result.empty? ? "?" : result
-    rescue => e
+    rescue StandardError => e
+      Rails.logger.error "Version detection failed for #{path}: #{e.message}"
       "?"
     end
 
@@ -96,7 +101,7 @@ class HarnessRegistry
       reg["claude-code"] = Harness.new(
         key: "claude-code", name: "Claude Code", category: :cli_agents,
         description: "Anthropic's official CLI coding agent — full repo read/write, autonomous task execution",
-        cli_name: "claude", cli_paths: ["/usr/sbin/claude"],
+        cli_name: "claude", cli_paths: [ "/usr/sbin/claude" ],
         endpoint_template: nil,
         discovery_command: ->(path) { "#{path} --version 2>/dev/null || echo '?'" },
         health_check_command: ->(path) { "#{path} --version 2>/dev/null" },
@@ -104,7 +109,7 @@ class HarnessRegistry
           fields: [
             { key: "api_key", label: "Anthropic API Key", type: "password", optional: true },
             { key: "max_tokens", label: "Max Tokens", type: "number", default: 8192 },
-            { key: "model", label: "Model", type: "select", options: ["claude-sonnet-4-20250514", "claude-opus-4-20250514", "claude-haiku-4-20250514"] }
+            { key: "model", label: "Model", type: "select", options: [ "claude-sonnet-4-20250514", "claude-opus-4-20250514", "claude-haiku-4-20250514" ] }
           ],
           auto_connect: true,
           launch_command: ->(config) { "claude" }
@@ -116,14 +121,14 @@ class HarnessRegistry
         key: "codex", name: "Codex CLI", category: :cli_agents,
         description: "OpenAI's terminal coding agent — sandboxed code execution, multi-file edits",
         cli_name: "codex",
-        cli_paths: ["/home/synth/.local/bin/codex"],
+        cli_paths: [ "/home/synth/.local/bin/codex" ],
         endpoint_template: nil,
         discovery_command: ->(path) { "#{path} --version 2>/dev/null || head -3 #{path} | grep -oP 'VERSION|v\\d+\\.\\d+' || echo '?'" },
         health_check_command: ->(path) { "test -x #{path} && echo 'ok' || echo 'missing'" },
         config_schema: {
           fields: [
             { key: "api_key", label: "OpenAI API Key", type: "password", optional: true },
-            { key: "model", label: "Model", type: "select", options: ["o4-mini", "o3", "gpt-4o"] },
+            { key: "model", label: "Model", type: "select", options: [ "o4-mini", "o3", "gpt-4o" ] },
             { key: "sandbox", label: "Sandbox Mode", type: "boolean", default: true }
           ],
           auto_connect: true,
@@ -136,13 +141,13 @@ class HarnessRegistry
         key: "opencode", name: "OpenCode CLI", category: :cli_agents,
         description: "Open-source coding agent — extensible, multi-model support",
         cli_name: "opencode",
-        cli_paths: ["/home/synth/.local/bin/opencode"],
+        cli_paths: [ "/home/synth/.local/bin/opencode" ],
         endpoint_template: nil,
         discovery_command: ->(path) { "#{path} --version 2>/dev/null || echo '?'" },
         health_check_command: ->(path) { "test -x #{path} && echo 'ok' || echo 'missing'" },
         config_schema: {
           fields: [
-            { key: "provider", label: "Provider", type: "select", options: ["openai", "anthropic", "openrouter", "local"] },
+            { key: "provider", label: "Provider", type: "select", options: [ "openai", "anthropic", "openrouter", "local" ] },
             { key: "model", label: "Model", type: "string" },
             { key: "api_key", label: "API Key", type: "password", optional: true }
           ],
@@ -156,7 +161,7 @@ class HarnessRegistry
         key: "openclaw", name: "OpenClaw", category: :cli_agents,
         description: "Synth's own AI agent framework — custom tools, MCP bridge, autonomous coding",
         cli_name: nil,
-        cli_paths: ["/home/synth/projects/openclaw"],
+        cli_paths: [ "/home/synth/projects/openclaw" ],
         endpoint_template: "http://localhost:%{port}",
         discovery_command: ->(path) { "test -d #{path} && echo 'repository' || echo 'missing'" },
         health_check_command: ->(path) { "ls #{path}/ 2>/dev/null | head -1" },
@@ -164,7 +169,7 @@ class HarnessRegistry
           fields: [
             { key: "repo_path", label: "Repository Path", type: "path", default: "/home/synth/projects/openclaw" },
             { key: "port", label: "API Port", type: "number", default: 8080 },
-            { key: "mode", label: "Mode", type: "select", options: ["server", "cli", "hybrid"] }
+            { key: "mode", label: "Mode", type: "select", options: [ "server", "cli", "hybrid" ] }
           ],
           auto_connect: false,
           launch_command: ->(config) { "cd #{config['repo_path']} && ./scripts/start.sh" }
@@ -176,7 +181,7 @@ class HarnessRegistry
         key: "claw-code", name: "Claw Code", category: :cli_agents,
         description: "Synth's lightweight coding agent — Gemini-powered, focused on rapid development",
         cli_name: nil,
-        cli_paths: ["/home/synth/projects/claw-code-gemini-setup-guide"],
+        cli_paths: [ "/home/synth/projects/claw-code-gemini-setup-guide" ],
         endpoint_template: "http://localhost:%{port}",
         discovery_command: ->(path) { "test -d #{path} && echo 'repository' || echo 'missing'" },
         health_check_command: ->(path) { "ls #{path}/ 2>/dev/null | head -3" },
@@ -215,13 +220,13 @@ class HarnessRegistry
         key: "copilot", name: "GitHub Copilot CLI", category: :cli_agents,
         description: "GitHub's AI coding assistant — explain, suggest, translate in terminal",
         cli_name: "copilot",
-        cli_paths: ["/home/synth/.local/bin/copilot"],
+        cli_paths: [ "/home/synth/.local/bin/copilot" ],
         discovery_command: ->(path) { "#{path} --version 2>/dev/null || echo '?'" },
         health_check_command: ->(path) { "test -x #{path} && echo 'ok' || echo 'missing'" },
         config_schema: {
           fields: [
             { key: "auth_token", label: "Auth Token", type: "password", optional: true },
-            { key: "model", label: "Model", type: "select", options: ["claude-sonnet", "gpt-4o", "gemini"] }
+            { key: "model", label: "Model", type: "select", options: [ "claude-sonnet", "gpt-4o", "gemini" ] }
           ],
           auto_connect: true,
           launch_command: ->(config) { "copilot" }
@@ -237,7 +242,7 @@ class HarnessRegistry
         health_check_command: ->(path) { "test -x #{path} && echo 'ok' || echo 'missing'" },
         config_schema: {
           fields: [
-            { key: "provider", label: "Provider", type: "select", options: ["openai", "anthropic", "openrouter"] },
+            { key: "provider", label: "Provider", type: "select", options: [ "openai", "anthropic", "openrouter" ] },
             { key: "model", label: "Model", type: "string", default: "claude-sonnet-4-20250514" },
             { key: "api_key", label: "API Key", type: "password", optional: true }
           ],
@@ -270,14 +275,14 @@ class HarnessRegistry
         key: "hermes-agent", name: "Hermes Agent", category: :agent_frameworks,
         description: "Nous Research's autonomous agent — MCP-native, multi-provider, Discord-integrated",
         cli_name: "hermes",
-        cli_paths: ["/home/synth/.local/bin/hermes"],
+        cli_paths: [ "/home/synth/.local/bin/hermes" ],
         endpoint_template: nil,
         discovery_command: ->(path) { "#{path} --version 2>/dev/null || echo '?'" },
         health_check_command: ->(path) { "test -x #{path} && echo 'ok' || echo 'missing'" },
         config_schema: {
           fields: [
-            { key: "profile", label: "Profile", type: "select", options: ["default", "dev", "wingman"] },
-            { key: "provider", label: "Provider", type: "select", options: ["anthropic", "openai", "nous", "xai", "deepseek", "openrouter"] },
+            { key: "profile", label: "Profile", type: "select", options: [ "default", "dev", "wingman" ] },
+            { key: "provider", label: "Provider", type: "select", options: [ "anthropic", "openai", "nous", "xai", "deepseek", "openrouter" ] },
             { key: "model", label: "Model", type: "string", default: "claude-sonnet-4-20250514" },
             { key: "mcp_enabled", label: "MCP Servers", type: "boolean", default: true }
           ],
@@ -291,7 +296,7 @@ class HarnessRegistry
         key: "hermes-wingman", name: "Hermes Wingman", category: :agent_frameworks,
         description: "Flutter desktop frontend for Hermes Agent — chat UI, theme engine, agent spawning",
         cli_name: nil,
-        cli_paths: ["/home/synth/projects/hermes_wingman"],
+        cli_paths: [ "/home/synth/projects/hermes_wingman" ],
         endpoint_template: nil,
         discovery_command: ->(path) { "test -d #{path} && echo 'flutter_project' || echo 'missing'" },
         health_check_command: ->(path) { "ls #{path}/lib/ 2>/dev/null | head -3" },
@@ -331,14 +336,14 @@ class HarnessRegistry
         key: "ollama", name: "Ollama", category: :local_inference,
         description: "Local LLM runner — pull and run models like Llama, Mistral, Gemma on your hardware",
         cli_name: "ollama",
-        cli_paths: ["/usr/local/bin/ollama"],
+        cli_paths: [ "/usr/local/bin/ollama" ],
         endpoint_template: "http://localhost:11434",
         discovery_command: ->(path) { "#{path} --version 2>/dev/null || echo '?'" },
         health_check_command: ->(path) { "curl -s http://localhost:11434/api/tags > /dev/null 2>&1 && echo 'running' || echo 'not running'" },
         config_schema: {
           fields: [
             { key: "host", label: "Host", type: "string", default: "http://localhost:11434" },
-            { key: "default_model", label: "Default Model", type: "select", options: ["llama3.1", "qwen2.5", "mistral", "gemma3", "codestral"] },
+            { key: "default_model", label: "Default Model", type: "select", options: [ "llama3.1", "qwen2.5", "mistral", "gemma3", "codestral" ] },
             { key: "keep_alive", label: "Keep Alive (min)", type: "number", default: 5 }
           ],
           auto_connect: true,
@@ -351,7 +356,7 @@ class HarnessRegistry
         key: "llama-cpp", name: "llama.cpp", category: :local_inference,
         description: "High-performance local GGUF inference — optimized for your RX 9070 XT GPU",
         cli_name: nil,
-        cli_paths: ["/home/synth/llama.cpp/build/bin/llama-server"],
+        cli_paths: [ "/home/synth/llama.cpp/build/bin/llama-server" ],
         endpoint_template: "http://localhost:%{port}",
         discovery_command: ->(path) { "test -x #{path} && echo 'compiled' || echo 'missing'" },
         health_check_command: ->(path) { "curl -s http://localhost:8080/health 2>/dev/null && echo 'running' || echo 'not running'" },
@@ -394,14 +399,14 @@ class HarnessRegistry
         key: "mcp-bridge", name: "MCP Bridge", category: :mcp_protocol,
         description: "Model Context Protocol — universal bridge connecting AI agents to tools and data sources",
         cli_name: "mcporter",
-        cli_paths: ["/home/synth/.local/bin/mcporter"],
+        cli_paths: [ "/home/synth/.local/bin/mcporter" ],
         endpoint_template: nil,
         discovery_command: ->(path) { "#{path} --version 2>/dev/null || echo '?'" },
         health_check_command: ->(path) { "test -x #{path} && echo 'ok' || echo 'missing'" },
         config_schema: {
           fields: [
             { key: "servers", label: "MCP Servers (comma-separated)", type: "string", default: "filesystem,github" },
-            { key: "transport", label: "Transport", type: "select", options: ["stdio", "sse", "streamable-http"] },
+            { key: "transport", label: "Transport", type: "select", options: [ "stdio", "sse", "streamable-http" ] },
             { key: "port", label: "Bridge Port", type: "number", default: 8090 }
           ],
           auto_connect: true,
@@ -416,7 +421,7 @@ class HarnessRegistry
         key: "unity-mcp", name: "Unity MCP", category: :game_engine,
         description: "MCP bridge for Unity game engine — AI-controlled scene editing, C# scripting, asset management",
         cli_name: nil,
-        cli_paths: ["/home/synth/projects/unity-mcp"],
+        cli_paths: [ "/home/synth/projects/unity-mcp" ],
         endpoint_template: "http://localhost:%{port}",
         discovery_command: ->(path) { "test -d #{path} && echo 'repository' || echo 'missing'" },
         health_check_command: ->(path) { "test -f #{path}/package.json && echo 'ok' || echo 'missing'" },
@@ -436,7 +441,7 @@ class HarnessRegistry
         key: "unreal-mcp", name: "Unreal Engine MCP", category: :game_engine,
         description: "MCP bridge for Unreal Engine — AI-controlled Blueprint editing, C++ compilation, level design",
         cli_name: nil,
-        cli_paths: ["/home/synth/projects/Unreal_mcp"],
+        cli_paths: [ "/home/synth/projects/Unreal_mcp" ],
         endpoint_template: "http://localhost:%{port}",
         discovery_command: ->(path) { "test -d #{path} && echo 'repository' || echo 'missing'" },
         health_check_command: ->(path) { "ls #{path}/ 2>/dev/null | head -3" },
@@ -456,7 +461,7 @@ class HarnessRegistry
         key: "godot-mcp", name: "Godot MCP", category: :game_engine,
         description: "MCP bridge for Godot Engine — AI-controlled GDScript, scene tree, asset pipeline",
         cli_name: nil,
-        cli_paths: ["/home/synth/projects/Godot-MCP", "/home/synth/projects/godot-ai-bridge"],
+        cli_paths: [ "/home/synth/projects/Godot-MCP", "/home/synth/projects/godot-ai-bridge" ],
         endpoint_template: "http://localhost:%{port}",
         discovery_command: ->(path) { "test -d #{path} && echo 'repository' || echo 'missing'" },
         health_check_command: ->(path) { "ls #{path}/ 2>/dev/null | head -3" },
@@ -502,7 +507,7 @@ class HarnessRegistry
         config_schema: {
           fields: [
             { key: "api_key", label: "API Key", type: "password" },
-            { key: "default_model", label: "Default Model", type: "select", options: ["o4-mini", "o3", "gpt-4o", "gpt-4o-mini", "o1"] },
+            { key: "default_model", label: "Default Model", type: "select", options: [ "o4-mini", "o3", "gpt-4o", "gpt-4o-mini", "o1" ] },
             { key: "organization", label: "Organization ID", type: "string", optional: true }
           ],
           auto_connect: false,
@@ -520,7 +525,7 @@ class HarnessRegistry
         config_schema: {
           fields: [
             { key: "api_key", label: "API Key", type: "password" },
-            { key: "default_model", label: "Default Model", type: "select", options: ["claude-sonnet-4-20250514", "claude-opus-4-20250514", "claude-haiku-4-20250514"] }
+            { key: "default_model", label: "Default Model", type: "select", options: [ "claude-sonnet-4-20250514", "claude-opus-4-20250514", "claude-haiku-4-20250514" ] }
           ],
           auto_connect: false,
           launch_command: nil

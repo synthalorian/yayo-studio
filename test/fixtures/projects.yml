@@ -1,0 +1,20 @@
+holy_lands:
+  name: "Holy Lands"
+  description: "Unity/C# RPG with deep lore systems"
+  status: "active"
+  user: synth
+  project_type: game
+
+open_habit:
+  name: "Open Habit"
+  description: "Retro-synthwave habit tracking app"
+  status: "active"
+  user: synth
+  project_type: code
+
+another_project:
+  name: "Another Project"
+  description: "A project for another user"
+  status: "planning"
+  user: another_user
+  project_type: music

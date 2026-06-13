@@ -3,7 +3,7 @@ class Theme < ApplicationRecord
   validates :colors, presence: true
 
   scope :system, -> { where(is_system: true) }
-  scope :custom, -> { where(is_system: [false, nil]) }
+  scope :custom, -> { where(is_system: [ false, nil ]) }
 
   # Define the color palette keys used across all themes
   PALETTE_KEYS = %w[
@@ -11,8 +11,6 @@ class Theme < ApplicationRecord
     text text_muted border success warning error
     gradient_start gradient_end
   ].freeze
-
-  validates :colors, presence: true
 
   def self.seed_system_themes!
     return if system.any?

@@ -2,7 +2,7 @@ module ApplicationHelper
   def nav_link(text, path, options = {})
     base_class = options.delete(:class) || "nav-item"
     is_active = current_page?(path)
-    
+
     link_to path, **options, class: "#{base_class} #{is_active ? 'active' : ''}" do
       text
     end
@@ -15,7 +15,7 @@ module ApplicationHelper
       "archived" => "bg-[var(--color-text-muted)]/20 text-[var(--color-text-muted)]",
       "planning" => "bg-[var(--color-primary)]/20 text-[var(--color-primary)]"
     }
-    
+
     content_tag :span, status&.capitalize || "Unknown",
                 class: "px-2.5 py-0.5 rounded-full text-xs font-medium #{colors[status] || 'bg-[var(--color-surface-alt)] text-[var(--color-text-muted)]'}"
   end

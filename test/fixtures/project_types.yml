@@ -1,0 +1,27 @@
+game:
+  name: "Game"
+  icon: "🎮"
+  color: "#b388ff"
+  description: "Video game development projects"
+  position: 1
+
+code:
+  name: "Code"
+  icon: "💻"
+  color: "#00e5ff"
+  description: "Software development and libraries"
+  position: 2
+
+ai:
+  name: "AI"
+  icon: "🤖"
+  color: "#00e676"
+  description: "AI/ML experiments and integrations"
+  position: 3
+
+music:
+  name: "Music"
+  icon: "🎵"
+  color: "#ff6ec7"
+  description: "Music production, composition, and audio"
+  position: 4

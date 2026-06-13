@@ -1,0 +1,11 @@
+asset_one:
+  name: "Hero Sprite"
+  asset_type: "image"
+  file_path: "/assets/hero.png"
+  project: holy_lands
+
+asset_two:
+  name: "Background Music"
+  asset_type: "audio"
+  file_path: "/assets/bg.mp3"
+  project: holy_lands

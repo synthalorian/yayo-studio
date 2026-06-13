@@ -5,6 +5,9 @@ class ApplicationController < ActionController::Base
 
   def current_user
     @current_user ||= User.find_by(id: session[:user_id])
+  rescue ActiveRecord::RecordNotFound
+    session[:user_id] = nil
+    nil
   end
 
   def logged_in?
