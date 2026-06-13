@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_19_083823) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_13_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -59,13 +59,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_083823) do
     t.string "endpoint_url"
     t.string "harness_type"
     t.datetime "last_health_check"
-    t.string "name"
+    t.string "name", null: false
     t.bigint "project_id", null: false
     t.string "provider"
     t.string "status", default: "unknown"
     t.datetime "updated_at", null: false
+    t.index ["enabled"], name: "index_ai_integrations_on_enabled"
     t.index ["harness_type"], name: "index_ai_integrations_on_harness_type"
+    t.index ["project_id", "harness_type"], name: "index_ai_integrations_on_project_id_and_harness_type"
     t.index ["project_id"], name: "index_ai_integrations_on_project_id"
+    t.index ["provider"], name: "index_ai_integrations_on_provider"
     t.index ["status"], name: "index_ai_integrations_on_status"
   end
 
@@ -74,18 +77,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_083823) do
     t.datetime "created_at", null: false
     t.string "file_path"
     t.jsonb "metadata"
-    t.string "name"
+    t.string "name", null: false
     t.bigint "project_id", null: false
     t.datetime "updated_at", null: false
+    t.index ["asset_type"], name: "index_assets_on_asset_type"
     t.index ["project_id"], name: "index_assets_on_project_id"
   end
 
   create_table "journal_entries", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.date "entry_date"
+    t.date "entry_date", default: -> { "CURRENT_DATE" }
     t.bigint "project_id", null: false
-    t.string "title"
+    t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.index ["entry_date"], name: "index_journal_entries_on_entry_date"
     t.index ["project_id"], name: "index_journal_entries_on_project_id"
   end
 
@@ -94,7 +99,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_083823) do
     t.datetime "created_at", null: false
     t.text "description"
     t.string "icon"
-    t.string "name"
+    t.string "name", null: false
     t.integer "position"
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_project_types_on_name", unique: true
@@ -104,14 +109,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_083823) do
     t.jsonb "config"
     t.datetime "created_at", null: false
     t.text "description"
-    t.string "name"
+    t.string "name", null: false
     t.bigint "project_type_id", null: false
     t.string "repo_url"
-    t.string "status"
+    t.string "status", default: "planning"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.string "website_url"
     t.index ["project_type_id"], name: "index_projects_on_project_type_id"
+    t.index ["status"], name: "index_projects_on_status"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
 
@@ -122,13 +128,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_083823) do
     t.string "taggable_type", null: false
     t.datetime "updated_at", null: false
     t.index ["tag_id"], name: "index_taggings_on_tag_id"
+    t.index ["taggable_type", "taggable_id", "tag_id"], name: "index_taggings_uniqueness", unique: true
     t.index ["taggable_type", "taggable_id"], name: "index_taggings_on_taggable"
   end
 
   create_table "tags", force: :cascade do |t|
     t.string "color"
     t.datetime "created_at", null: false
-    t.string "name"
+    t.string "name", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_tags_on_name", unique: true
   end
@@ -145,7 +152,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_083823) do
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email"
-    t.string "name"
+    t.string "name", null: false
     t.string "password_digest"
     t.string "theme_name"
     t.datetime "updated_at", null: false

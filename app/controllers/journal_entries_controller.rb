@@ -1,6 +1,6 @@
 class JournalEntriesController < ApplicationController
   before_action :require_login
-  before_action :set_project, except: [:index]
+  before_action :set_project, except: [ :index ]
 
   def index
     @entries = JournalEntry.joins(:project)
@@ -21,7 +21,7 @@ class JournalEntriesController < ApplicationController
   def create
     @entry = @project.journal_entries.build(entry_params)
     if @entry.save
-      redirect_to [@project, @entry], notice: "Entry saved to the timeline"
+      redirect_to [ @project, @entry ], notice: "Entry saved to the timeline"
     else
       render :new, status: :unprocessable_entity
     end
@@ -34,7 +34,7 @@ class JournalEntriesController < ApplicationController
   def update
     @entry = @project.journal_entries.find(params[:id])
     if @entry.update(entry_params)
-      redirect_to [@project, @entry], notice: "Entry updated"
+      redirect_to [ @project, @entry ], notice: "Entry updated"
     else
       render :edit, status: :unprocessable_entity
     end
@@ -47,9 +47,10 @@ class JournalEntriesController < ApplicationController
   end
 
   def search
-    query = params[:q]
+    query = params[:q].to_s.strip
     @entries = @project.journal_entries
-                        .where("title ILIKE :q OR content ILIKE :q", q: "%#{query}%")
+                        .with_rich_text_content
+                        .where("title ILIKE :q", q: "%#{query}%")
                         .recent
     render partial: "entries_list", locals: { entries: @entries }
   end

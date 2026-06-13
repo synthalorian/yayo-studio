@@ -1,0 +1,15 @@
+ai_one:
+  name: "OpenAI Integration"
+  provider: "openai"
+  harness_type: "openai"
+  status: "connected"
+  enabled: true
+  project: open_habit
+
+ai_two:
+  name: "Claude Code"
+  provider: "claude"
+  harness_type: "claude-code"
+  status: "unknown"
+  enabled: false
+  project: holy_lands

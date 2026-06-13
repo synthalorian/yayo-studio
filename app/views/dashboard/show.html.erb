@@ -85,7 +85,7 @@
 
   <div class="space-y-3">
     <% @recent_entries.each do |entry| %>
-      <%= link_to [entry.project, entry], class: "block p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary)]/50 transition-all" do %>
+      <%= link_to project_entry_path(entry.project, entry), class: "block p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-primary)]/50 transition-all" do %>
         <div class="flex items-center justify-between">
           <div>
             <h4 class="font-medium"><%= entry.title %></h4>

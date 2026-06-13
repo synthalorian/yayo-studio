@@ -5,16 +5,17 @@ class DashboardController < ApplicationController
     @projects = current_user.projects.includes(:project_type, :tags).by_status
     @recent_entries = JournalEntry.joins(:project)
                                    .where(projects: { user_id: current_user.id })
-                                   .includes(:project)
+                                   .includes(:project, :tags)
+                                   .with_rich_text_content
                                    .recent
                                    .limit(5)
     @stats = {
-      total: @projects.count,
-      active: @projects.active.count,
-      archived: @projects.archived.count,
+      total: @projects.size,
+      active: @projects.active.size,
+      archived: @projects.archived.size,
       entries: JournalEntry.joins(:project)
-                           .where(projects: { user_id: current_user.id })
-                           .count
+                             .where(projects: { user_id: current_user.id })
+                             .count
     }
   end
 end

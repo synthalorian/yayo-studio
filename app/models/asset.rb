@@ -1,7 +1,8 @@
 class Asset < ApplicationRecord
   belongs_to :project
 
-  validates :name, presence: true
+  validates :name, presence: true, length: { maximum: 255 }
+  validates :file_path, length: { maximum: 1000 }, allow_blank: true
 
   scope :by_type, -> { order(asset_type: :asc, name: :asc) }
 

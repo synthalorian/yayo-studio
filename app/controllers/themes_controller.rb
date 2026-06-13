@@ -3,12 +3,16 @@ class ThemesController < ApplicationController
 
   def update
     if params[:theme_id].present?
-      theme = Theme.find(params[:theme_id])
-      current_user.update!(theme_name: theme.name)
-      redirect_back fallback_location: dashboard_path,
-                    notice: "Theme switched to '#{theme.name}'"
+      theme = Theme.find_by(id: params[:theme_id])
+      if theme
+        current_user.update!(theme_name: theme.name)
+        redirect_back fallback_location: dashboard_path,
+                      notice: "Theme switched to '#{theme.name}'"
+      else
+        redirect_back fallback_location: dashboard_path, alert: "Theme not found"
+      end
     elsif params[:colors].present?
-      theme = current_user.themes.create!(
+      theme = Theme.create!(
         name: "Custom #{Date.current}",
         colors: params[:colors].permit!.to_h,
         is_system: false

@@ -1,5 +1,5 @@
 class RegistrationsController < ApplicationController
-  before_action :require_logout, only: [:new, :create]
+  before_action :require_logout, only: [ :new, :create ]
 
   def new
     @user = User.new
@@ -11,6 +11,7 @@ class RegistrationsController < ApplicationController
     @user.theme_name ||= User.default_theme
 
     if @user.save
+      reset_session
       session[:user_id] = @user.id
       redirect_to dashboard_path, notice: "Welcome to Yayo Studio! The grid expands."
     else

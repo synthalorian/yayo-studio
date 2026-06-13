@@ -1,8 +1,15 @@
+require "open3"
+require "shellwords"
+require "net/http"
+
 class AiIntegration < ApplicationRecord
   belongs_to :project
 
-  validates :name, presence: true
-  validates :provider, presence: true
+  validates :name, presence: true, length: { maximum: 255 }
+  validates :provider, presence: true, length: { maximum: 100 }
+  validates :endpoint_url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), message: "must be a valid URL", allow_blank: true }
+  validates :harness_type, length: { maximum: 100 }, allow_blank: true
+  validates :status, inclusion: { in: %w[connected disconnected error unknown], allow_blank: true }
 
   scope :enabled, -> { where(enabled: true) }
   scope :connected, -> { where(status: "connected") }
@@ -48,7 +55,9 @@ class AiIntegration < ApplicationRecord
       # Try CLI-based health check
       cli_path = HarnessRegistry.find_cli(harness.cli_name, harness.cli_paths || [])
       if cli_path
-        result = `#{harness.health_check_command.call(cli_path)} 2>/dev/null`.strip
+        cmd = harness.health_check_command.call(Shellwords.escape(cli_path))
+        result, _status = Open3.capture2(cmd)
+        result = result.strip
         connected = result.downcase.include?("ok") || result.downcase.include?("running")
         new_status = connected ? "connected" : "disconnected"
         update!(status: new_status, last_health_check: Time.current)
@@ -57,8 +66,12 @@ class AiIntegration < ApplicationRecord
 
       # Try endpoint-based health check
       if endpoint_url.present?
-        result = `curl -s -o /dev/null -w "%{http_code}" --max-time 3 #{endpoint_url} 2>/dev/null`.strip
-        connected = result.to_i.between?(200, 399)
+        uri = URI.parse(endpoint_url)
+        response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https", read_timeout: 3, open_timeout: 3) do |http|
+          request = Net::HTTP::Get.new(uri)
+          http.request(request)
+        end
+        connected = response.code.to_i.between?(200, 399)
         new_status = connected ? "connected" : "disconnected"
         update!(status: new_status, last_health_check: Time.current)
         return new_status
@@ -66,7 +79,11 @@ class AiIntegration < ApplicationRecord
 
       update!(status: "disconnected", last_health_check: Time.current)
       "disconnected"
-    rescue => e
+    rescue URI::InvalidURIError, Net::OpenTimeout, Net::ReadTimeout, SocketError, Errno::ECONNREFUSED => e
+      update!(status: "error", last_health_check: Time.current)
+      "error"
+    rescue StandardError => e
+      Rails.logger.error "Health check failed for #{name}: #{e.message}"
       update!(status: "error", last_health_check: Time.current)
       "error"
     end
