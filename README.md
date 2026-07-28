@@ -55,6 +55,6 @@ AI harness connections (detected from your `$PATH`).
 
 ## License
 
-Apache-2.0 — see [LICENSE](LICENSE)
+MIT — see [LICENSE](LICENSE)
 
 Made by synth with synthclaw
