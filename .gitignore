@@ -42,3 +42,4 @@
 .claw/
 .omo/
 .clawd-todos.json
+vendor/bundle/
