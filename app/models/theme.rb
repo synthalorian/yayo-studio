@@ -13,9 +13,27 @@ class Theme < ApplicationRecord
   ].freeze
 
   def self.seed_system_themes!
-    return if system.any?
-
     themes = {
+      "blackshield" => {
+        name: "Blackshield",
+        is_system: true,
+        colors: {
+          "background" => "#101014",
+          "surface" => "#16161c",
+          "surface_alt" => "#0d0d11",
+          "primary" => "#c1121f",
+          "secondary" => "#7b9dc4",
+          "accent" => "#c9a227",
+          "text" => "#d8d3c8",
+          "text_muted" => "#8a8f98",
+          "border" => "#1a1a20",
+          "success" => "#6a994e",
+          "warning" => "#c9a227",
+          "error" => "#c1121f",
+          "gradient_start" => "#c1121f",
+          "gradient_end" => "#7b9dc4"
+        }
+      },
       "synthwave-84" => {
         name: "Synthwave '84",
         is_system: true,
@@ -138,6 +156,10 @@ class Theme < ApplicationRecord
       }
     }
 
-    themes.each_value { |attrs| create!(attrs) }
+    themes.each_value do |attrs|
+      # Idempotent: new system themes (e.g. Blackshield) ride into existing
+      # databases instead of being gated behind a one-shot seed.
+      find_or_create_by!(name: attrs[:name]) { |t| t.assign_attributes(attrs) }
+    end
   end
 end
