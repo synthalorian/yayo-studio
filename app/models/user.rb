@@ -9,6 +9,6 @@ class User < ApplicationRecord
   validates :password, length: { minimum: 8, if: -> { password.present? } }
 
   def self.default_theme
-    "synthwave-84"
+    "Blackshield"
   end
 end
