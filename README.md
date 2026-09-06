@@ -57,7 +57,7 @@ AI harness connections (detected from your `$PATH`).
 
 MIT — see [LICENSE](LICENSE)
 
-Made by synth with synthclaw
+Made by synth 🎹🤺 with synthclaw
 
 ---
 
