@@ -41,7 +41,7 @@ class ThemeTest < ActiveSupport::TestCase
 
   test "seed_system_themes should create themes if none exist" do
     Theme.where(is_system: true).destroy_all
-    assert_difference("Theme.count", 6) do
+    assert_difference("Theme.count", 7) do
       Theme.seed_system_themes!
     end
   end

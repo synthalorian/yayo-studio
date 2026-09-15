@@ -42,8 +42,8 @@ class UserTest < ActiveSupport::TestCase
     assert_includes user.errors[:password], "is too short (minimum is 8 characters)"
   end
 
-  test "default_theme should return synthwave-84" do
-    assert_equal "synthwave-84", User.default_theme
+  test "default_theme should return Blackshield" do
+    assert_equal "Blackshield", User.default_theme
   end
 
   test "should have many projects" do
