@@ -14,7 +14,7 @@ class ThemesController < ApplicationController
     elsif params[:colors].present?
       theme = Theme.create!(
         name: "Custom #{Date.current}",
-        colors: params[:colors].permit!.to_h,
+        colors: params[:colors].permit(*Theme::PALETTE_KEYS).to_h,
         is_system: false
       )
       current_user.update!(theme_name: theme.name)

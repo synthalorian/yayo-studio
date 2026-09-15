@@ -1,0 +1,29 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "6b6c09428f499df04bbe33f9b2076cffaa5ecee5d3ed4ed47cde0e1818e76a24",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "lib/harness_registry.rb",
+      "line": 87,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "`#{discovery_cmd.call(Shellwords.escape(path))} 2>/dev/null`",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "HarnessRegistry",
+        "method": "self.detect_version"
+      },
+      "user_input": "discovery_cmd.call(Shellwords.escape(path))",
+      "confidence": "Medium",
+      "cwe_id": [
+        77
+      ],
+      "note": "Path is Shellwords.escape-d before interpolation and discovery_cmd lambdas are hardcoded registry constants (lib/harness_registry.rb), not user input. Shell redirections in the templates are intentional."
+    }
+  ],
+  "updated": "2026-09-15 23:11:27 +0000",
+  "brakeman_version": "8.0.6"
+}
