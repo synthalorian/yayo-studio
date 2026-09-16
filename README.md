@@ -57,7 +57,7 @@ AI harness connections (detected from your `$PATH`).
 
 Apache-2.0 — see [LICENSE](LICENSE)
 
-Made by synth 🎹🤺 with Blackclaw
+Made by synth 🎹🤺 with blackclaw
 
 ---
 
