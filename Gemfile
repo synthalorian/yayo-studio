@@ -4,7 +4,7 @@ source "https://rubygems.org"
 gem "rails", "~> 8.1.3"
 
 # minitest 6 breaks Rails system tests (OptionParser incompatibility)
-gem "minitest", "< 6"
+gem "minitest", "< 7"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
 gem "propshaft"
 # Use postgresql as the database for Active Record
