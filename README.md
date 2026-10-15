@@ -1,3 +1,5 @@
+![yayo-studio](.github/preview.png)
+
 # 🎛️ Yayo Studio
 
 **Creative Project Hub** — one dashboard for every project you're juggling. Games, music, code, writing, art — tracked, journaled, and wired straight into your AI toolchain.
